@@ -29,7 +29,8 @@ function App() {
 
     try {
       // Google Apps Script Web App URL - you'll need to create this
-      const scriptURL = 'https://script.google.com/macros/s/AKfycbxYOUR_SCRIPT_ID_HERE/exec';
+      const scriptURL = 'https://script.google.com/macros/s/AKfycbw1klfn6CmCx6Q4iE-AgPuD5EIfyelcYVN7OO9WAhy393W8sbZxgtfRkImgLCXUEfLBnw/exec';
+
       
       const response = await fetch(scriptURL, {
         method: 'POST',
