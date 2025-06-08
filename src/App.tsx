@@ -33,17 +33,20 @@ function App() {
 
       
       const response = await fetch(scriptURL, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: new URLSearchParams({
-          ...formData,
-          timestamp: new Date().toISOString(),
-          source: 'Website'
-        })
-      });
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/x-www-form-urlencoded',
+  },
+  body: new URLSearchParams({
+    ...formData,
+    timestamp: new Date().toISOString(),
+    source: 'Website'
+  })
+});
+
+const text = await response.text();
+console.log('Response:', text);
+
 
       setSubmitStatus('success');
       setFormData({
