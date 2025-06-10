@@ -307,7 +307,7 @@ function App() {
                 ) : (
                   <>
                     <Calendar className="h-5 w-5" />
-                    <span>Schedule My Demo</span>
+                    <span>Contact Us</span>
                   </>
                 )}
               </button>
