@@ -4,6 +4,7 @@ import audioFile from './audio.mp3';
 
 function App() {
   const [showForm, setShowForm] = useState(false);
+  const [showThankYou, setShowThankYou] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -14,7 +15,6 @@ function App() {
     message: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState('');
   
   // Audio demo state
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -63,8 +63,98 @@ function App() {
     });
   };
 
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    
+    try {
+      const response = await fetch('https://script.google.com/macros/s/AKfycbzjV1TDsRxtIs00iC_Sy7IifYbtXseyEPjT-IUBJvAF9BMk3zuZZqJgSFqAuZmwBA6GKw/exec', {
+        method: 'POST',
+        body: new FormData(e.target as HTMLFormElement)
+      });
+      
+      if (response.ok) {
+        setShowForm(false);
+        setShowThankYou(true);
+        // Reset form data
+        setFormData({
+          name: '',
+          email: '',
+          phone: '',
+          practiceName: '',
+          currentBookingMethod: '',
+          monthlyPatients: '',
+          message: ''
+        });
+      } else {
+        throw new Error('Form submission failed');
+      }
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      // Handle error - you could show an error message here
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-900 text-white">
+      {/* Thank You Modal */}
+      {showThankYou && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-gray-800 rounded-2xl p-8 max-w-2xl w-full border border-gray-700">
+            <div className="text-center">
+              <div className="bg-green-600/20 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                <CheckCircle className="h-10 w-10 text-green-400" />
+              </div>
+              
+              <h2 className="text-3xl font-bold mb-4">Thank You!</h2>
+              <p className="text-xl text-gray-300 mb-6">
+                We've received your request for a demo of our AI booking system.
+              </p>
+              
+              <div className="bg-gray-700/50 rounded-xl p-6 mb-8">
+                <h3 className="text-lg font-semibold mb-4 text-blue-400">What happens next?</h3>
+                <div className="space-y-3 text-left">
+                  <div className="flex items-start space-x-3">
+                    <div className="bg-blue-600/20 w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <span className="text-xs font-bold text-blue-400">1</span>
+                    </div>
+                    <p className="text-gray-300">Our team will review your practice details and prepare a customized demo</p>
+                  </div>
+                  <div className="flex items-start space-x-3">
+                    <div className="bg-blue-600/20 w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <span className="text-xs font-bold text-blue-400">2</span>
+                    </div>
+                    <p className="text-gray-300">We'll contact you within 24 hours to schedule your personalized demo</p>
+                  </div>
+                  <div className="flex items-start space-x-3">
+                    <div className="bg-blue-600/20 w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <span className="text-xs font-bold text-blue-400">3</span>
+                    </div>
+                    <p className="text-gray-300">During the demo, you'll see exactly how our AI can transform your practice</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-gradient-to-r from-blue-900/30 to-purple-900/30 rounded-xl p-6 mb-8 border border-blue-800/30">
+                <p className="text-sm text-gray-300 mb-2">
+                  <strong className="text-blue-400">Quick question?</strong> Call us directly:
+                </p>
+                <p className="text-xl font-semibold text-white">(512) 925-743</p>
+              </div>
+              
+              <button
+                onClick={() => setShowThankYou(false)}
+                className="bg-blue-600 hover:bg-blue-700 px-8 py-3 rounded-lg font-semibold transition-all hover:scale-105"
+              >
+                Continue Exploring
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Lead Capture Form Modal */}
       {showForm && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -79,19 +169,7 @@ function App() {
               </button>
             </div>
             
-            {submitStatus === 'success' && (
-              <div className="bg-green-600/20 border border-green-600/50 rounded-lg p-4 mb-6">
-                <p className="text-green-400 font-semibold">Thank you! We'll contact you within 24 hours to schedule your demo.</p>
-              </div>
-            )}
-            
-            {submitStatus === 'error' && (
-              <div className="bg-red-600/20 border border-red-600/50 rounded-lg p-4 mb-6">
-                <p className="text-red-400 font-semibold">There was an error submitting your form. Please try again or call us directly.</p>
-              </div>
-            )}
-            
-            <form method='post' className="space-y-6" action='https://script.google.com/macros/s/AKfycbzjV1TDsRxtIs00iC_Sy7IifYbtXseyEPjT-IUBJvAF9BMk3zuZZqJgSFqAuZmwBA6GKw/exec'>
+            <form onSubmit={handleFormSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2">
@@ -350,7 +428,7 @@ function App() {
                 </div>
               </div>
 
-              {/* Audio Element - Replace 'demo-call.mp3' with your actual file */}
+              {/* Audio Element */}
               <audio
                 ref={audioRef}
                 onTimeUpdate={handleTimeUpdate}
