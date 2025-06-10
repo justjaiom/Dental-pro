@@ -141,7 +141,7 @@ function App() {
                 <p className="text-sm text-gray-300 mb-2">
                   <strong className="text-blue-400">Quick question?</strong> Call us directly:
                 </p>
-                <p className="text-xl font-semibold text-white">(512) 925-743</p>
+                <p className="text-xl font-semibold text-white">(512) XXX-XXX</p>
               </div>
               
               <button
@@ -734,7 +734,7 @@ function App() {
             </button>
             <button className="border border-gray-600 hover:border-gray-500 px-10 py-4 rounded-lg text-lg font-semibold transition-all hover:bg-gray-800 flex items-center justify-center space-x-2">
               <Phone className="h-5 w-5" />
-              <span>(512) 925-743</span>
+              <span>(512) XXX-XXXX</span>
             </button>
           </div>
         </div>
@@ -768,7 +768,7 @@ function App() {
             <div>
               <h4 className="font-semibold mb-4">Contact</h4>
               <ul className="space-y-2 text-gray-400">
-                <li>(512) 925-743</li>
+                <li>(512) XXX-XXX</li>
                 <li>hello@dentalai.pro</li>
                 <li>24/7 Support Available</li>
                 <li>HIPAA Compliant</li>
