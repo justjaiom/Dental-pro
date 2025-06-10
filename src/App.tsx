@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Phone, Bot, Calendar, Users, Zap, CheckCircle, ArrowRight, MessageSquare, Clock, TrendingUp, X, Play, Pause, Volume2 } from 'lucide-react';
+import audioFile from './audio.mp3';
 
 function App() {
   const [showForm, setShowForm] = useState(false);
@@ -407,7 +408,7 @@ console.log('Response:', text);
                 onEnded={handleAudioEnded}
                 className="hidden"
               >
-                <source src="/demo-call.mp3" type="audio/mpeg" />
+                <source src={audioFile} type="audio/mpeg" />
                 Your browser does not support the audio element.
               </audio>
 
