@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { Phone, Bot, Calendar, Users, Zap, CheckCircle, ArrowRight, MessageSquare, Clock, TrendingUp, X, Play, Pause, Volume2 } from 'lucide-react';
 
 function App() {
@@ -15,80 +15,44 @@ function App() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState('');
   
-  // Demo state
-  const [demoStep, setDemoStep] = useState(0);
+  // Audio demo state
+  const audioRef = useRef<HTMLAudioElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [showTranscript, setShowTranscript] = useState(true);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
 
-  const demoConversation = [
-    {
-      speaker: 'patient',
-      message: "Hi, I'd like to schedule a dental cleaning appointment.",
-      timestamp: '0:00'
-    },
-    {
-      speaker: 'ai',
-      message: "Hello! I'd be happy to help you schedule a cleaning appointment. May I have your name please?",
-      timestamp: '0:03'
-    },
-    {
-      speaker: 'patient',
-      message: "Sure, it's Sarah Johnson.",
-      timestamp: '0:08'
-    },
-    {
-      speaker: 'ai',
-      message: "Thank you, Sarah. I see you're a returning patient. When would you prefer to come in? We have availability this week on Tuesday at 2 PM or Thursday at 10 AM.",
-      timestamp: '0:11'
-    },
-    {
-      speaker: 'patient',
-      message: "Thursday at 10 AM works perfectly for me.",
-      timestamp: '0:18'
-    },
-    {
-      speaker: 'ai',
-      message: "Perfect! I've scheduled your cleaning appointment for Thursday, January 18th at 10:00 AM with Dr. Smith. You'll receive a confirmation text shortly. Is there anything else I can help you with today?",
-      timestamp: '0:21'
-    },
-    {
-      speaker: 'patient',
-      message: "That's all, thank you so much!",
-      timestamp: '0:30'
-    },
-    {
-      speaker: 'ai',
-      message: "You're very welcome, Sarah! We look forward to seeing you on Thursday. Have a great day!",
-      timestamp: '0:33'
+  const handlePlayPause = () => {
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.pause();
+      } else {
+        audioRef.current.play();
+      }
+      setIsPlaying(!isPlaying);
     }
-  ];
-
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (isPlaying && demoStep < demoConversation.length) {
-      interval = setInterval(() => {
-        setDemoStep(prev => {
-          if (prev >= demoConversation.length - 1) {
-            setIsPlaying(false);
-            return prev;
-          }
-          return prev + 1;
-        });
-      }, 2500);
-    }
-    return () => clearInterval(interval);
-  }, [isPlaying, demoStep, demoConversation.length]);
-
-  const handlePlayDemo = () => {
-    if (demoStep >= demoConversation.length - 1) {
-      setDemoStep(0);
-    }
-    setIsPlaying(!isPlaying);
   };
 
-  const resetDemo = () => {
-    setDemoStep(0);
+  const handleTimeUpdate = () => {
+    if (audioRef.current) {
+      setCurrentTime(audioRef.current.currentTime);
+    }
+  };
+
+  const handleLoadedMetadata = () => {
+    if (audioRef.current) {
+      setDuration(audioRef.current.duration);
+    }
+  };
+
+  const handleAudioEnded = () => {
     setIsPlaying(false);
+    setCurrentTime(0);
+  };
+
+  const formatTime = (time: number) => {
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -404,165 +368,124 @@ console.log('Response:', text);
         </div>
       </section>
 
-      {/* Interactive Demo Section */}
+      {/* Audio Demo Section */}
       <section id="demo" className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              See Our AI Agent in Action
+              Hear Our AI Agent in Action
             </h2>
             <p className="text-xl text-gray-400 max-w-3xl mx-auto">
-              Watch how our AI booking agent handles a real patient call with natural conversation and intelligent scheduling.
+              Listen to a real conversation between our AI booking agent and a patient calling Pure Care Dental.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
-            {/* Phone Interface */}
+          <div className="max-w-4xl mx-auto">
+            {/* Audio Player */}
             <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-3xl p-8 border border-gray-700/50 shadow-2xl">
-              <div className="bg-black rounded-2xl p-6 mb-6">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                    <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                    <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                  </div>
-                  <div className="text-gray-400 text-sm">Incoming Call</div>
-                </div>
-                
-                <div className="text-center py-8">
-                  <div className="w-20 h-20 bg-blue-600/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Phone className="h-10 w-10 text-blue-400" />
-                  </div>
-                  <div className="text-white font-semibold mb-2">Smith Family Dentistry</div>
-                  <div className="text-gray-400 text-sm mb-6">AI Agent Active</div>
-                  
-                  <div className="flex justify-center space-x-4">
-                    <button
-                      onClick={handlePlayDemo}
-                      className="bg-green-600 hover:bg-green-700 p-3 rounded-full transition-colors"
-                    >
-                      {isPlaying ? <Pause className="h-6 w-6" /> : <Play className="h-6 w-6" />}
-                    </button>
-                    <button
-                      onClick={resetDemo}
-                      className="bg-gray-600 hover:bg-gray-700 p-3 rounded-full transition-colors"
-                    >
-                      <ArrowRight className="h-6 w-6 rotate-180" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <button
-                  onClick={() => setShowTranscript(!showTranscript)}
-                  className="flex items-center space-x-2 text-blue-400 hover:text-blue-300 transition-colors"
-                >
-                  <MessageSquare className="h-4 w-4" />
-                  <span className="text-sm">{showTranscript ? 'Hide' : 'Show'} Transcript</span>
-                </button>
-                <div className="flex items-center space-x-2 text-gray-400">
-                  <Volume2 className="h-4 w-4" />
-                  <span className="text-sm">Audio Simulation</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Conversation Transcript */}
-            <div className="bg-gray-800/30 rounded-2xl p-6 border border-gray-700/50 h-[500px] overflow-hidden">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-semibold">Live Conversation</h3>
-                <div className="flex items-center space-x-2">
-                  <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                  <span className="text-sm text-gray-400">Recording</span>
+                <div className="flex items-center space-x-4">
+                  <div className="w-16 h-16 bg-blue-600/20 rounded-full flex items-center justify-center">
+                    <Phone className="h-8 w-8 text-blue-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-semibold">Pure Care Dental - AI Agent Call</h3>
+                    <p className="text-gray-400">Patient scheduling a cleaning appointment</p>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-2 text-gray-400">
+                  <Volume2 className="h-5 w-5" />
+                  <span className="text-sm">Audio Demo</span>
                 </div>
               </div>
 
-              <div className="space-y-4 h-[400px] overflow-y-auto">
-                {demoConversation.slice(0, demoStep + 1).map((message, index) => (
-                  <div
-                    key={index}
-                    className={`flex ${message.speaker === 'ai' ? 'justify-start' : 'justify-end'} animate-fade-in`}
+              {/* Audio Element - Replace 'demo-call.mp3' with your actual file */}
+              <audio
+                ref={audioRef}
+                onTimeUpdate={handleTimeUpdate}
+                onLoadedMetadata={handleLoadedMetadata}
+                onEnded={handleAudioEnded}
+                className="hidden"
+              >
+                <source src="/demo-call.mp3" type="audio/mpeg" />
+                Your browser does not support the audio element.
+              </audio>
+
+              {/* Custom Audio Controls */}
+              <div className="bg-black/30 rounded-2xl p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <button
+                    onClick={handlePlayPause}
+                    className="bg-blue-600 hover:bg-blue-700 p-4 rounded-full transition-colors"
                   >
-                    <div className={`max-w-[80%] p-4 rounded-2xl ${
-                      message.speaker === 'ai' 
-                        ? 'bg-blue-600/20 border border-blue-500/30' 
-                        : 'bg-gray-700/50 border border-gray-600/30'
-                    }`}>
-                      <div className="flex items-center space-x-2 mb-2">
-                        <div className={`w-2 h-2 rounded-full ${
-                          message.speaker === 'ai' ? 'bg-blue-400' : 'bg-gray-400'
-                        }`}></div>
-                        <span className="text-xs text-gray-400 uppercase tracking-wide">
-                          {message.speaker === 'ai' ? 'AI Agent' : 'Patient'}
-                        </span>
-                        <span className="text-xs text-gray-500">{message.timestamp}</span>
-                      </div>
-                      <p className="text-white">{message.message}</p>
+                    {isPlaying ? <Pause className="h-6 w-6" /> : <Play className="h-6 w-6" />}
+                  </button>
+                  
+                  <div className="flex-1 mx-6">
+                    <div className="bg-gray-700 rounded-full h-2 relative">
+                      <div 
+                        className="bg-blue-500 h-2 rounded-full transition-all duration-300"
+                        style={{ width: duration ? `${(currentTime / duration) * 100}%` : '0%' }}
+                      ></div>
                     </div>
                   </div>
-                ))}
+                  
+                  <div className="text-sm text-gray-400 min-w-[80px] text-right">
+                    {formatTime(currentTime)} / {formatTime(duration)}
+                  </div>
+                </div>
                 
-                {isPlaying && demoStep < demoConversation.length - 1 && (
-                  <div className="flex justify-start">
-                    <div className="bg-blue-600/20 border border-blue-500/30 p-4 rounded-2xl">
-                      <div className="flex items-center space-x-2">
-                        <div className="flex space-x-1">
-                          <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"></div>
-                          <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-                          <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
-                        </div>
-                        <span className="text-sm text-gray-400">AI is typing...</span>
-                      </div>
-                    </div>
+                <div className="text-center">
+                  <p className="text-gray-300 text-sm">
+                    {isPlaying ? 'Playing live conversation...' : 'Click play to hear the AI agent in action'}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Demo Results */}
+            <div className="mt-12 bg-gradient-to-r from-green-900/20 to-blue-900/20 rounded-2xl p-8 border border-green-500/20">
+              <div className="text-center mb-8">
+                <h3 className="text-2xl font-bold mb-4">What Happened in This Call</h3>
+                <p className="text-gray-400">Our AI agent successfully handled the entire booking process:</p>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="text-center">
+                  <div className="bg-green-600/20 w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-3">
+                    <CheckCircle className="h-6 w-6 text-green-400" />
                   </div>
-                )}
+                  <h4 className="font-semibold mb-2">Appointment Scheduled</h4>
+                  <p className="text-sm text-gray-400">Patient successfully booked for cleaning appointment</p>
+                </div>
+                
+                <div className="text-center">
+                  <div className="bg-blue-600/20 w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-3">
+                    <Users className="h-6 w-6 text-blue-400" />
+                  </div>
+                  <h4 className="font-semibold mb-2">Natural Conversation</h4>
+                  <p className="text-sm text-gray-400">AI spoke naturally and professionally throughout</p>
+                </div>
+                
+                <div className="text-center">
+                  <div className="bg-purple-600/20 w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-3">
+                    <MessageSquare className="h-6 w-6 text-purple-400" />
+                  </div>
+                  <h4 className="font-semibold mb-2">Confirmation Sent</h4>
+                  <p className="text-sm text-gray-400">Automated confirmation and reminders scheduled</p>
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Demo Results */}
-          <div className="mt-16 bg-gradient-to-r from-green-900/20 to-blue-900/20 rounded-2xl p-8 border border-green-500/20">
-            <div className="text-center mb-8">
-              <h3 className="text-2xl font-bold mb-4">Demo Results</h3>
-              <p className="text-gray-400">What happened in this 37-second call:</p>
+            <div className="text-center mt-12">
+              <button 
+                onClick={() => setShowForm(true)}
+                className="bg-blue-600 hover:bg-blue-700 px-8 py-4 rounded-lg text-lg font-semibold transition-all hover:scale-105 flex items-center justify-center space-x-2 mx-auto"
+              >
+                <Calendar className="h-5 w-5" />
+                <span>Get This for Your Practice</span>
+              </button>
             </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="text-center">
-                <div className="bg-green-600/20 w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-3">
-                  <CheckCircle className="h-6 w-6 text-green-400" />
-                </div>
-                <h4 className="font-semibold mb-2">Appointment Scheduled</h4>
-                <p className="text-sm text-gray-400">Patient booked for Thursday, Jan 18th at 10:00 AM</p>
-              </div>
-              
-              <div className="text-center">
-                <div className="bg-blue-600/20 w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-3">
-                  <Users className="h-6 w-6 text-blue-400" />
-                </div>
-                <h4 className="font-semibold mb-2">Patient Identified</h4>
-                <p className="text-sm text-gray-400">Returning patient Sarah Johnson recognized instantly</p>
-              </div>
-              
-              <div className="text-center">
-                <div className="bg-purple-600/20 w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-3">
-                  <MessageSquare className="h-6 w-6 text-purple-400" />
-                </div>
-                <h4 className="font-semibold mb-2">Confirmation Sent</h4>
-                <p className="text-sm text-gray-400">Automated text confirmation delivered</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="text-center mt-12">
-            <button 
-              onClick={() => setShowForm(true)}
-              className="bg-blue-600 hover:bg-blue-700 px-8 py-4 rounded-lg text-lg font-semibold transition-all hover:scale-105 flex items-center justify-center space-x-2 mx-auto"
-            >
-              <Calendar className="h-5 w-5" />
-              <span>See This in Your Practice</span>
-            </button>
           </div>
         </div>
       </section>
@@ -825,23 +748,6 @@ console.log('Response:', text);
           </div>
         </div>
       </footer>
-
-      <style jsx>{`
-        @keyframes fade-in {
-          from {
-            opacity: 0;
-            transform: translateY(10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        
-        .animate-fade-in {
-          animation: fade-in 0.5s ease-out;
-        }
-      `}</style>
     </div>
   );
 }
