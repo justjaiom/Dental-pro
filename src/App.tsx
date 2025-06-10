@@ -63,56 +63,6 @@ function App() {
     });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    setSubmitStatus('');
-
-    try {
-      // Google Apps Script Web App URL - you'll need to create this
-      const scriptURL = 'https://script.google.com/macros/s/AKfycbw1klfn6CmCx6Q4iE-AgPuD5EIfyelcYVN7OO9WAhy393W8sbZxgtfRkImgLCXUEfLBnw/exec';
-
-      
-      const response = await fetch(scriptURL, {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/x-www-form-urlencoded',
-  },
-  body: new URLSearchParams({
-    ...formData,
-    timestamp: new Date().toISOString(),
-    source: 'Website'
-  })
-});
-
-const text = await response.text();
-console.log('Response:', text);
-
-
-      setSubmitStatus('success');
-      setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        practiceName: '',
-        currentBookingMethod: '',
-        monthlyPatients: '',
-        message: ''
-      });
-      
-      setTimeout(() => {
-        setShowForm(false);
-        setSubmitStatus('');
-      }, 2000);
-
-    } catch (error) {
-      console.error('Error:', error);
-      setSubmitStatus('error');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       {/* Lead Capture Form Modal */}
@@ -140,8 +90,8 @@ console.log('Response:', text);
                 <p className="text-red-400 font-semibold">There was an error submitting your form. Please try again or call us directly.</p>
               </div>
             )}
-
-            <form onSubmit={handleSubmit} className="space-y-6">
+            
+            <form method='post' className="space-y-6" action='https://script.google.com/macros/s/AKfycbzjV1TDsRxtIs00iC_Sy7IifYbtXseyEPjT-IUBJvAF9BMk3zuZZqJgSFqAuZmwBA6GKw/exec'>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2">
